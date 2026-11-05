@@ -1,0 +1,581 @@
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const CareerHub());
+}
+
+class CareerHub extends StatelessWidget {
+  const CareerHub({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'CareerHub',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
+        useMaterial3: true,
+      ),
+      home: const JobHomePage(),
+    );
+  }
+}
+
+class Job {
+  final String role;
+  final String company;
+  final String location;
+  final String type;
+  final String salary;
+  final String description;
+  final List<String> requirements;
+
+  const Job({
+    required this.role,
+    required this.company,
+    required this.location,
+    required this.type,
+    required this.salary,
+    required this.description,
+    required this.requirements,
+  });
+}
+
+const List<Job> jobs = [
+  Job(
+    role: 'Financial Analyst',
+    company: 'Deloitte',
+    location: 'Hyderabad',
+    type: 'Full-time',
+    salary: '₹5-8 LPA',
+    description:
+        'Analyze financial information and support important business decisions.',
+    requirements: [
+      'Degree in Finance or Accounting',
+      'Knowledge of Excel',
+      'Strong analytical skills',
+    ],
+  ),
+  Job(
+    role: 'Web Developer',
+    company: 'Infosys',
+    location: 'Bangalore',
+    type: 'Full-time',
+    salary: '₹4-7 LPA',
+    description:
+        'Develop and maintain modern, responsive websites.',
+    requirements: [
+      'HTML, CSS and JavaScript',
+      'Problem-solving skills',
+      'Programming knowledge',
+    ],
+  ),
+  Job(
+    role: 'Marketing Intern',
+    company: 'Amazon',
+    location: 'Mumbai',
+    type: 'Internship',
+    salary: '₹15,000/month',
+    description:
+        'Assist the marketing team with campaigns and research.',
+    requirements: [
+      'Good communication',
+      'Interest in marketing',
+      'Basic computer skills',
+    ],
+  ),
+  Job(
+    role: 'Content Writer',
+    company: 'Startup Studio',
+    location: 'Remote',
+    type: 'Remote',
+    salary: '₹3-5 LPA',
+    description:
+        'Create engaging content for websites and digital platforms.',
+    requirements: [
+      'Strong writing skills',
+      'Creativity',
+      'Research skills',
+    ],
+  ),
+  Job(
+    role: 'HR Assistant',
+    company: 'TCS',
+    location: 'Delhi',
+    type: 'Part-time',
+    salary: '₹20,000/month',
+    description:
+        'Assist with recruitment and employee coordination.',
+    requirements: [
+      'Good communication',
+      'Organizational skills',
+      'Basic HR knowledge',
+    ],
+  ),
+];
+
+class JobHomePage extends StatefulWidget {
+  const JobHomePage({super.key});
+
+  @override
+  State<JobHomePage> createState() => _JobHomePageState();
+}
+
+class _JobHomePageState extends State<JobHomePage> {
+  String search = '';
+  String selectedLocation = 'All Locations';
+  String selectedType = 'All Types';
+
+  final List<Map<String, String>> applications = [];
+
+  List<Job> get filteredJobs {
+    return jobs.where((job) {
+      final matchesSearch =
+          job.role.toLowerCase().contains(search.toLowerCase()) ||
+          job.company.toLowerCase().contains(search.toLowerCase());
+
+      final matchesLocation =
+          selectedLocation == 'All Locations' ||
+          job.location == selectedLocation;
+
+      final matchesType =
+          selectedType == 'All Types' ||
+          job.type == selectedType;
+
+      return matchesSearch && matchesLocation && matchesType;
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF172554),
+        foregroundColor: Colors.white,
+        title: const Text(
+          'CareerHub.',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            tooltip: 'My Applications',
+            icon: const Icon(Icons.assignment_outlined),
+            onPressed: showApplications,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(28),
+            color: const Color(0xFFE0EAFF),
+            child: const Column(
+              children: [
+                Text(
+                  'Find Your Dream Job',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF172554),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Discover opportunities. Build your career.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(18),
+              children: [
+                const Text(
+                  'Explore Job Opportunities',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search jobs or companies...',
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() => search = value);
+                  },
+                ),
+
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: selectedLocation,
+                        decoration: const InputDecoration(
+                          labelText: 'Location',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          'All Locations',
+                          'Hyderabad',
+                          'Bangalore',
+                          'Mumbai',
+                          'Delhi',
+                          'Remote',
+                        ].map((value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedLocation = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: selectedType,
+                        decoration: const InputDecoration(
+                          labelText: 'Job Type',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          'All Types',
+                          'Full-time',
+                          'Part-time',
+                          'Internship',
+                          'Remote',
+                        ].map((value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedType = value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  '${filteredJobs.length} Jobs Found',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                if (filteredJobs.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(30),
+                      child: Text('No matching jobs found.'),
+                    ),
+                  ),
+
+                ...filteredJobs.map((job) => JobCard(
+                  job: job,
+                  onTap: () => showJobDetails(job),
+                )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget JobCard({
+    required Job job,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      color: Colors.white,
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(17),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Chip(
+              label: Text(job.type),
+              backgroundColor: const Color(0xFFE0EAFF),
+              side: BorderSide.none,
+            ),
+            Text(
+              job.role,
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              job.company,
+              style: const TextStyle(color: Colors.blueGrey),
+            ),
+            const SizedBox(height: 10),
+            Text('📍 ${job.location}'),
+            Text('💰 ${job.salary}'),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onTap,
+                child: const Text('View Details'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showJobDetails(Job job) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  job.role,
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text('${job.company} • ${job.location}'),
+                Text('${job.type} • ${job.salary}'),
+                const SizedBox(height: 20),
+                const Text(
+                  'Job Description',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(job.description),
+                const SizedBox(height: 20),
+                const Text(
+                  'Requirements',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ...job.requirements.map(
+                  (item) => ListTile(
+                    leading: const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                    ),
+                    title: Text(item),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      showApplicationForm(job);
+                    },
+                    child: const Text('Apply Now'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showApplicationForm(Job job) {
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
+    final coverController = TextEditingController();
+
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Apply: ${job.role}'),
+          content: SizedBox(
+            width: 450,
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Full Name *',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().length < 2) {
+                          return 'Enter a valid name';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email Address *',
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null ||
+                            !RegExp(r'^[^@]+@[^@]+\.[^@]+$')
+                                .hasMatch(value.trim())) {
+                          return 'Enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: phoneController,
+                      decoration: const InputDecoration(
+                        labelText: 'Phone Number *',
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null ||
+                            value.replaceAll(RegExp(r'\D'), '').length < 7) {
+                          return 'Enter a valid phone number';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: coverController,
+                      decoration: const InputDecoration(
+                        labelText: 'Cover Letter',
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  setState(() {
+                    applications.add({
+                      'name': nameController.text.trim(),
+                      'email': emailController.text.trim(),
+                      'phone': phoneController.text.trim(),
+                      'cover': coverController.text.trim(),
+                      'role': job.role,
+                      'company': job.company,
+                    });
+                  });
+
+                  Navigator.pop(dialogContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Application submitted successfully!'),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Submit Application'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showApplications() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('My Applications'),
+          content: SizedBox(
+            width: 400,
+            child: applications.isEmpty
+                ? const Text('No applications submitted yet.')
+                : ListView(
+                    shrinkWrap: true,
+                    children: applications.map((app) {
+                      return Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.work),
+                          title: Text(app['role']!),
+                          subtitle: Text(
+                            '${app['company']}\n${app['name']}',
+                          ),
+                          isThreeLine: true,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
